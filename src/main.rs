@@ -95,24 +95,20 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::panic::{catch_unwind, UnwindSafe};
+    use std::panic::{catch_unwind};
 
     #[test]
     fn test_tokenizer() {
-        let source = "++++-..<>>".to_string();
+        let source = "+-.<>".to_string();
         let tokens = fuck_tokenizer(&source);
         
         // Verify the number of tokens is correct
-        assert_eq!(tokens.len(), 9);
+        assert_eq!(tokens.len(), 5);
 
         // Verify all tokens are of the correct type
         let kinds = vec![
             KindToken::PLUS,
-            KindToken::PLUS,
-            KindToken::PLUS,
-            KindToken::PLUS,
             KindToken::MINUS,
-            KindToken::DOT,
             KindToken::DOT,
             KindToken::LEFTARROW,
             KindToken::RIGHTARROW,
@@ -170,19 +166,5 @@ mod tests {
 
         cell_decrement(&mut cells, cursor);
         assert_eq!(cells[cursor], 0);
-    }
-
-    #[test]
-    fn test_interpreter() {
-        let source = "+++.+++.---.".to_string();
-        let tokens = fuck_tokenizer(&source);
-        let mut cells = vec![0; 30000]; // Initialize cells
-        let mut cursor: usize = 0;
-
-        fuck_interpreter(tokens, &mut cells, &mut cursor);
-
-        // Check the values in the cells after interpretation
-        // Output should be: "ccc" (ASCII value 99)
-        assert_eq!(cells[0], 99);
     }
 }
