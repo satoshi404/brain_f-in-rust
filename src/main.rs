@@ -1,21 +1,25 @@
 #[derive(Debug)]
 #[derive(PartialEq, Eq)]
 enum KindToken {
-    PLUS,
-    MINUS,
-    DOT,
-    LEFTARROW,
-    RIGHTARROW
+    Plus,
+    Minus,
+    Dot,
+    LeftArrow,
+    LeftBracket,
+    RightBracket,
+    RightArrow
 }
 
 #[allow(dead_code)]
 fn kind_token_to_string(kind: KindToken) -> String {
     match kind {
-        KindToken::PLUS => "+".to_string(),
-        KindToken::MINUS => "-".to_string(),
-        KindToken::DOT => ".".to_string(),
-        KindToken::LEFTARROW => "<".to_string(),
-        KindToken::RIGHTARROW => ">".to_string()
+        KindToken::Plus => "+".to_string(),
+        KindToken::Minus => "-".to_string(),
+        KindToken::Dot => ".".to_string(),
+        KindToken::LeftBracket => "[".to_string(),
+        KindToken::RightBracket => "]".to_string(),
+        KindToken::LeftArrow => "<".to_string(),
+        KindToken::RightArrow => ">".to_string()
     }
 }
 
@@ -28,11 +32,13 @@ fn fuck_tokenizer(path: &str) -> Vec<Token> {
     for ch in path.chars() {
         match ch {
             ' ' => continue,
-            '+' => tokens.push(Token { kind: KindToken::PLUS }),
-            '-' => tokens.push(Token { kind: KindToken::MINUS }),
-            '.' => tokens.push(Token { kind: KindToken::DOT }),
-            '<' => tokens.push(Token { kind: KindToken::LEFTARROW }),
-            '>' => tokens.push(Token { kind: KindToken::RIGHTARROW }),
+            '+' => tokens.push(Token { kind: KindToken::Plus }),
+            '-' => tokens.push(Token { kind: KindToken::Minus }),
+            '.' => tokens.push(Token { kind: KindToken::Dot }),
+            '[' => tokens.push(Token { kind: KindToken::LeftBracket }),
+            ']' => tokens.push(Token { kind: KindToken::RightBracket }),
+            '<' => tokens.push(Token { kind: KindToken::LeftArrow }),
+            '>' => tokens.push(Token { kind: KindToken::RightArrow }),
             _ => { panic!("( fuck_tokenizer ) Token invalid")} 
         }
     }
@@ -60,11 +66,7 @@ fn cell_increment(cells: &mut Vec<u8>, cursor: usize) {
 }
 
 fn cell_decrement(cells: &mut Vec<u8>, cursor: usize) {
-    if cells[cursor] > 0 {
-        cells[cursor] -= 1;
-    } else {
-        panic!("( cell_decrement ) cursor < size cells ");
-    }
+    cells[cursor] -= 1;
 }   
 
 fn cell_write(cells: &Vec<u8>, cursor: usize) {
@@ -74,17 +76,19 @@ fn cell_write(cells: &Vec<u8>, cursor: usize) {
 fn fuck_interpreter(tokens: Vec<Token>, cells: &mut Vec<u8>, cursor: &mut usize) {
     for token in tokens {
         match token.kind {
-            KindToken::PLUS => cell_increment(cells, *cursor),
-            KindToken::MINUS => cell_decrement(cells, *cursor),
-            KindToken::DOT => cell_write(cells, *cursor),
-            KindToken::LEFTARROW => cursor_decrement(cursor),
-            KindToken::RIGHTARROW => cursor_increment(cursor),
+            KindToken::Plus => cell_increment(cells, *cursor),
+            KindToken::Minus => cell_decrement(cells, *cursor),
+            KindToken::Dot => cell_write(cells, *cursor),
+            KindToken::LeftBracket => println!("The token '[' not implemented yet"),
+            KindToken::RightBracket => println!("The token ']' not implemented yet"),
+            KindToken::LeftArrow => cursor_decrement(cursor),
+            KindToken::RightArrow => cursor_increment(cursor),
         }
     }
 }
 
 fn main() {
-    let source: String = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.>++++ ++++ ++.".to_string();
+    let source: String = "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.>++++ ++++ ++.[]".to_string();
     let mut cursor: usize = 0; 
     let mut data: Vec<u8> = vec![0; 30000]; // Initialize cells with a size of 30,000
     
@@ -99,19 +103,23 @@ mod tests {
 
     #[test]
     fn test_tokenizer() {
-        let source = "+-.<>".to_string();
+        let source = "+-.[++]<>".to_string();
         let tokens = fuck_tokenizer(&source);
         
         // Verify the number of tokens is correct
-        assert_eq!(tokens.len(), 5);
+        assert_eq!(tokens.len(), 9);
 
         // Verify all tokens are of the correct type
         let kinds = vec![
-            KindToken::PLUS,
-            KindToken::MINUS,
-            KindToken::DOT,
-            KindToken::LEFTARROW,
-            KindToken::RIGHTARROW,
+            KindToken::Plus,
+            KindToken::Minus,
+            KindToken::Dot,
+            KindToken::LeftBracket,
+            KindToken::Plus,
+            KindToken::Plus,
+            KindToken::RightBracket,
+            KindToken::LeftArrow,
+            KindToken::RightArrow,
         ];
 
         for (i, token) in tokens.iter().enumerate() {
